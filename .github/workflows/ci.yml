@@ -32,3 +32,5 @@ jobs:
 
       - name: Build
         run: npm run build
+        env:
+          WA_HEADLESS_BASE_URL: ${{ secrets.WA_HEADLESS_BASE_URL }}
