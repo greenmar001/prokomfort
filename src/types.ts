@@ -18,10 +18,12 @@ export type ProductLike = {
   image_id?: string | number;
   ext?: string;
   count?: number; // Used in Page for categories (which are also seemingly treated loosely)
+  sku_id?: string | number;
+  description?: string;
 };
 
 export type Category = {
-    id: number;
-    name: string;
-    count?: number;
+  id: number;
+  name: string;
+  count?: number;
 };
