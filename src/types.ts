@@ -26,6 +26,7 @@ export type ProductLike = {
   features?: Record<string, FeatureValue>; // Key-value map of features
   rating?: number;
   vote_count?: number;
+  category_id?: number;
 };
 
 export type Category = {

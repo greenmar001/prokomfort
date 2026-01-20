@@ -1,8 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
-import Breadcrumbs from "@/components/Breadcrumbs";
-import { getProduct } from "@/lib/wa";
-import { ProductLike } from "@/types";
+import { getProduct, getCategories } from "@/lib/wa";
+import { ProductLike, Category } from "@/types";
 import {
   Star,
   MessageCircle,
@@ -29,6 +28,26 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
   const { id } = await params;
   const p: ProductLike = await getProduct(Number(id));
 
+  // Fetch categories for breadcrumbs
+  const catsData = await getCategories();
+  let allCats: Category[] = [];
+  if (Array.isArray(catsData)) {
+    allCats = catsData;
+  } else if (catsData && "categories" in catsData) {
+    allCats = catsData.categories;
+  }
+
+  // Build crumbs
+  const crumbs = [{ title: "Главная", href: "/" }];
+  const cat = allCats.find(c => c.id === p.category_id);
+  if (cat) {
+    if (cat.parent_id) {
+      const parent = allCats.find(c => c.id === cat.parent_id);
+      if (parent) crumbs.push({ title: parent.name, href: `/category/${parent.id}` });
+    }
+    crumbs.push({ title: cat.name, href: `/category/${cat.id}` });
+  }
+
   // --- Data Preparation ---
   const sku = p.skus?.[0];
   const priceVal = parseFloat(sku?.price_str?.replace(/[^\d.]/g, "") || "0");
@@ -41,7 +60,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
   const rating = p.rating ?? 4.8;
   const reviewsCount = p.vote_count ?? 5;
   const bonuses = Math.round(priceVal * 0.03); // ~3% bonuses
-  const modelRange = ["до 40 кв.м", "до 20 кв.м", "до 30 кв.м"];
+  const modelRange = ["до 40 кв.m", "до 20 кв.m", "до 30 кв.m"];
 
   // Mock features keys (since API might return map, we simulate list for display)
   const mainFeatures = [
@@ -68,12 +87,16 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
   return (
     <div className="pb-12 text-[#0f172a]">
       {/* Breadcrumbs */}
-      <div className="mb-4 text-sm text-gray-500">
-        <Link href="/" className="hover:text-orange-500 transition">Главная</Link>
-        <span className="mx-2">–</span>
-        <Link href="#" className="hover:text-orange-500 transition">Кондиционеры</Link>
-        <span className="mx-2">–</span>
-        <span className="text-gray-400 truncate">{p.name}</span>
+      <div className="mb-4 text-sm text-gray-500 flex items-center flex-wrap">
+        {crumbs.map((c, i) => (
+          <div key={i} className="flex items-center">
+            <Link href={c.href} className="hover:text-orange-500 transition">
+              {c.title}
+            </Link>
+            <span className="mx-2">–</span>
+          </div>
+        ))}
+        <span className="text-gray-400 truncate">{p.name || `Товар #${id}`}</span>
       </div>
 
       {/* Header Section */}
