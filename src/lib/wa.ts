@@ -50,8 +50,45 @@ export async function getCategories() {
   return waGet<{ categories: Category[] } | Category[]>("/categories", { revalidate: 3600 });
 }
 
-export async function getProduct(idOrSlug: number | string) {
-  return waGet<ProductLike>(`/product/${idOrSlug}`, { revalidate: 300 });
+export async function getProduct(idOrSlug: number | string): Promise<ProductLike> {
+  // If it's a number, just fetch by ID
+  if (typeof idOrSlug === "number" || /^\d+$/.test(String(idOrSlug))) {
+    return waGet<ProductLike>(`/product/${idOrSlug}`, { revalidate: 300 });
+  }
+
+  // If it's a slug, try fetching directly first (some APIs support this)
+  try {
+    return await waGet<ProductLike>(`/product/${idOrSlug}`, { revalidate: 300 });
+  } catch (e) {
+    // If direct fetch fails, try searching by slug
+    // Note: This relies on the search endpoint indexing the slug/url
+    console.warn(`Direct fetch for slug "${idOrSlug}" failed, trying search...`);
+
+    try {
+      const searchRes = await waGet<{ products: ProductLike[] }>(withQuery("/products/search", { query: String(idOrSlug) }), { revalidate: 60 });
+      const products = searchRes.products || [];
+
+      // Find exact match by url or frontend_url
+      // frontend_url usually format: "product/slug" or "category/product-slug"
+      // url is usually "slug"
+      const exact = products.find(p => p.url === idOrSlug || p.frontend_url?.endsWith(`/${idOrSlug}`) || p.frontend_url === idOrSlug);
+
+      if (exact) return exact;
+
+      if (products.length > 0) {
+        // Fallback: return first result if high confidence? (Risk of wrong product)
+        // For now, let's be strict. If search query was the slug, 
+        // and we got results, but no exact URL match, it might be the product but URL prop is different.
+        // Let's return the first one but log it.
+        console.warn(`Loose match for slug "${idOrSlug}" -> ID ${products[0].id}`);
+        return products[0];
+      }
+    } catch (searchErr) {
+      console.error("Search fallback failed", searchErr);
+    }
+
+    throw e; // Re-throw original error if search fails
+  }
 }
 
 export async function getCategoryProducts(

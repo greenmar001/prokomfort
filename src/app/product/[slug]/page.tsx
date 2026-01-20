@@ -18,9 +18,22 @@ function waImageUrl(productId: number, imageId: number, ext: string, size: "970"
   return `https://pro-komfort.com/wa-data/public/shop/products/${a}/${b}/${productId}/images/${imageId}/${imageId}.${size}.${ext}`;
 }
 
+import { notFound } from "next/navigation";
+
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const p: ProductLike = await getProduct(slug);
+  let p: ProductLike | null = null;
+  try {
+    p = await getProduct(slug);
+  } catch (e) {
+    console.error("Failed to fetch product by slug:", slug, e);
+    // Fallback: This might be a slug that API doesn't support directly. 
+    // If we cannot find it, return 404.
+  }
+
+  if (!p) {
+    return notFound();
+  }
 
   // Fetch categories for breadcrumbs
   const catsData = await getCategories();
