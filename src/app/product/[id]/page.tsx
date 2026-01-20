@@ -1,19 +1,12 @@
 import Link from "next/link";
-import Image from "next/image";
 import { getProduct, getCategories } from "@/lib/wa";
 import { ProductLike, Category } from "@/types";
 import ProductGallery from "@/components/ProductGallery";
 import {
   Star,
-  MessageCircle,
   BarChart3,
   Heart,
   Share2,
-  Check,
-  ChevronRight,
-  Truck,
-  MapPin,
-  Clock,
   Info
 } from "lucide-react";
 
@@ -72,16 +65,6 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
     { label: "Страна бренда", value: "Китай" },
     { label: "Бренд", value: "Ballu" },
   ];
-
-  // Images logic
-  const mainImageId = p.image_id;
-  const mainExt = p.ext;
-  let mainImageUrl = "";
-  if (p.images && p.images.length > 0) {
-    mainImageUrl = p.images[0].url_big || p.images[0].url_crop || "";
-  } else if (mainImageId && mainExt) {
-    mainImageUrl = waImageUrl(p.id, Number(mainImageId), String(mainExt).replace(".", ""), "970");
-  }
 
   // --- Components HTML ---
 
@@ -180,8 +163,13 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
             </div>
 
             {/* Price */}
-            <div className="mb-1">
+            <div className="mb-1 flex flex-wrap items-baseline gap-2">
               <span className="text-3xl font-bold">{cleanPrice}</span>
+              {comparePriceVal > priceVal && (
+                <span className="text-lg text-gray-400 line-through decoration-gray-400 decoration-2">
+                  {comparePriceVal.toLocaleString("ru-RU")}
+                </span>
+              )}
             </div>
 
             {/* Availability */}
