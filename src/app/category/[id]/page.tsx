@@ -1,17 +1,20 @@
 import Link from "next/link";
-import Breadcrumbs from "@/components/Breadcrumbs";
-import { getCategoryProducts, getProduct } from "@/lib/wa";
+// import Breadcrumbs from "@/components/Breadcrumbs";
+// import { getCategoryProducts, getProduct } from "@/lib/wa";
 import ProductCard from "@/components/ProductCard";
+import { ProductLike } from "@/types";
 export const revalidate = 60;
 
-function pickImage(p: any) {
-  const im = Array.isArray(p?.images) && p.images.length ? p.images[0] : null;
-  return im?.url_thumb || im?.url_crop || im?.url_big || null;
-}
-function pickPrice(p: any) {
-  const sku = Array.isArray(p?.skus) && p.skus.length ? p.skus[0] : null;
-  return sku?.price_str || sku?.price_html || null;
-}
+// Helper functions removed as they were unsued or can be replaced by direct access if needed, 
+// although `pickImage` and `pickPrice` were marked unused.
+// If they were used in map, we should use ProductLike type.
+// But wait, the errors said: 
+// 'Breadcrumbs' is defined but never used
+// 'getCategoryProducts' is defined but never used
+// 'getProduct' is defined but never used
+// 'pickImage' is defined but never used
+// 'pickPrice' is defined but never used
+// So we just remove them.
 
 export default async function CategoryPage({
   params,
@@ -46,7 +49,7 @@ export default async function CategoryPage({
   return (
     <main style={{ padding: 24 }}>
       <div className="grid">
-        {products.map((p: any) => (
+        {products.map((p: ProductLike) => (
           <ProductCard key={p.id} product={p} />
         ))}
       </div>
