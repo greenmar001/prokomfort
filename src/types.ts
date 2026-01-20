@@ -16,6 +16,8 @@ export type ProductLike = {
   id: number;
   name?: string;
   summary?: string;
+  url?: string; // Slug/URL part
+  frontend_url?: string;
   images?: Image[];
   skus?: Sku[];
   image_id?: string | number;
@@ -32,6 +34,8 @@ export type ProductLike = {
 export type Category = {
   id: number;
   name: string;
+  url?: string;
+  full_url?: string;
   count?: number;
   parent_id?: number;
 };

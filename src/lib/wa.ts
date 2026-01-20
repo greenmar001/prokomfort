@@ -50,15 +50,25 @@ export async function getCategories() {
   return waGet<{ categories: Category[] } | Category[]>("/categories", { revalidate: 3600 });
 }
 
-export async function getProduct(id: number) {
-  return waGet<ProductLike>(`/product/${id}`, { revalidate: 300 });
+export async function getProduct(idOrSlug: number | string) {
+  return waGet<ProductLike>(`/product/${idOrSlug}`, { revalidate: 300 });
 }
 
-export async function getCategoryProducts(categoryId: number, offset = 0, limit = 24) {
-  const url = withQuery(`/category/${categoryId}/products`, {
+export async function getCategoryProducts(
+  categoryId: number,
+  offset = 0,
+  limit = 24,
+  sort?: string,
+  order?: string
+) {
+  const params: Record<string, string | number | undefined> = {
     offset,
     limit,
-    with: "images,skus",
-  });
+    with: "images,skus,frontend_url",
+  };
+  if (sort) params.sort = sort;
+  if (order) params.order = order;
+
+  const url = withQuery(`/category/${categoryId}/products`, params);
   return waGet<{ products: ProductLike[]; count: number }>(url, { revalidate: 60 });
 }

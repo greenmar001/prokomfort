@@ -18,9 +18,9 @@ function waImageUrl(productId: number, imageId: number, ext: string, size: "970"
   return `https://pro-komfort.com/wa-data/public/shop/products/${a}/${b}/${productId}/images/${imageId}/${imageId}.${size}.${ext}`;
 }
 
-export default async function ProductPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
-  const p: ProductLike = await getProduct(Number(id));
+export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const p: ProductLike = await getProduct(slug);
 
   // Fetch categories for breadcrumbs
   const catsData = await getCategories();
@@ -80,12 +80,12 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
             <span className="mx-2">–</span>
           </div>
         ))}
-        <span className="text-gray-400 truncate">{p.name || `Товар #${id}`}</span>
+        <span className="text-gray-400 truncate">{p.name || `Товар`}</span>
       </div>
 
       {/* Header Section */}
       <h1 className="text-[28px] md:text-[32px] font-bold mb-4 leading-tight">
-        {p.name ?? `Товар #${id}`}
+        {p.name ?? `Товар`}
       </h1>
 
       <div className="flex flex-wrap items-center gap-6 mb-8 text-[13px] text-gray-500">

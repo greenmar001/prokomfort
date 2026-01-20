@@ -84,7 +84,7 @@ export default function ProductCard({ product }: { product: ProductLike }) {
       </div>
 
       {/* Image */}
-      <Link href={`/product/${product.id}`} className="relative block w-full aspect-[1/1] mb-4">
+      <Link href={product.frontend_url ? `/product/${product.frontend_url.replace('product/', '')}` : (product.url ? `/product/${product.url}` : `/product/${product.id}`)} className="relative block w-full aspect-[1/1] mb-4">
         {imgUrl ? (
           <Image
             src={imgUrl}
@@ -119,7 +119,7 @@ export default function ProductCard({ product }: { product: ProductLike }) {
       </div>
 
       {/* Title */}
-      <Link href={`/product/${product.id}`} className="block mb-3">
+      <Link href={product.frontend_url ? `/product/${product.frontend_url.replace('product/', '')}` : (product.url ? `/product/${product.url}` : `/product/${product.id}`)} className="block mb-3">
         <h3 className="font-bold text-[14px] leading-tight text-[#0f172a] line-clamp-2 min-h-[40px] group-hover:text-blue-600 transition">
           {product.name ?? `Товар #${product.id}`}
         </h3>
