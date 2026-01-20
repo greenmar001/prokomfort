@@ -62,32 +62,46 @@ export async function getProduct(idOrSlug: number | string): Promise<ProductLike
   } catch (e) {
     // If direct fetch fails, try searching by slug
     // Note: This relies on the search endpoint indexing the slug/url
-    // console.warn(`Direct fetch for slug "${idOrSlug}" failed, trying search...`);
+
+    // Helper to find exact match in a list
+    const findExact = (items: ProductLike[], targetSlug: string) =>
+      items.find(p => p.url === targetSlug || p.frontend_url?.endsWith(`/${targetSlug}`) || p.frontend_url === targetSlug);
 
     try {
-      // Cleaning slug: "some-product-name" -> "some product name"
-      const query = String(idOrSlug).replace(/[-_]/g, " ").replace(".html", "");
+      const targetSlug = String(idOrSlug);
 
-      const searchRes = await waGet<{ products: ProductLike[] }>(withQuery("/products/search", { query }), { revalidate: 60 });
-      const products = searchRes.products || [];
+      // Strategy 1: Full fuzzy search (all words)
+      const queryFull = targetSlug.replace(/[-_]/g, " ").replace(".html", "");
+      const resFull = await waGet<{ products: ProductLike[] }>(withQuery("/products/search", { query: queryFull }), { revalidate: 60 });
+      const productsFull = resFull.products || [];
 
-      // 1. Try exact URL match
-      const exact = products.find(p =>
-        p.url === idOrSlug ||
-        p.frontend_url?.endsWith(`/${idOrSlug}`) ||
-        p.frontend_url === idOrSlug
-      );
-      if (exact) return exact;
+      const match1 = findExact(productsFull, targetSlug);
+      if (match1) return match1;
 
-      // 2. Try looser URL match (if slug is part of url)
-      const looseUrl = products.find(p => p.url?.includes(String(idOrSlug)) || p.frontend_url?.includes(String(idOrSlug)));
-      if (looseUrl) return looseUrl;
+      // Strategy 2: Search by last 2 parts (Model/SKU usually at end and preserved in Latin)
+      // e.g. "elektricheskiy-kamin-electrolux-efpw-2000s" -> "efpw 2000s"
+      const parts = targetSlug.split("-").filter(p => p.length > 0 && p !== "html");
+      if (parts.length >= 2) {
+        const queryLast = parts.slice(-2).join(" ");
+        // Avoid repeating query if same
+        if (queryLast !== queryFull) {
+          const resLast = await waGet<{ products: ProductLike[] }>(withQuery("/products/search", { query: queryLast }), { revalidate: 60 });
+          const productsLast = resLast.products || [];
 
-      // 3. Fallback: Return first result if any
-      if (products.length > 0) {
-        console.warn(`Loose match for slug "${idOrSlug}" -> ID ${products[0].id}`);
-        return products[0];
+          const match2 = findExact(productsLast, targetSlug);
+          if (match2) return match2;
+        }
       }
+
+      // Fallback: If we found SOMETHING in full search, return it? 
+      // User reported 404, implying strict exact matching is better than nothing, 
+      // or broad matching returned nothing.
+      // But let's return first result of FULL search if available as last resort.
+      if (productsFull.length > 0) {
+        console.warn(`Loose match for slug "${idOrSlug}" -> ID ${productsFull[0].id}`);
+        return productsFull[0];
+      }
+
     } catch (searchErr) {
       console.error("Search fallback failed", searchErr);
     }
