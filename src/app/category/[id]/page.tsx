@@ -86,7 +86,7 @@ export default async function CategoryPage({
 
       <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 20, flexWrap: "wrap" }}>
         {prevPage ? (
-          <Link className="btn" href={`/category/${params.id}?page=${prevPage}`}>
+          <Link className="btn" href={`/category/${id}?page=${prevPage}`}>
             ← Назад
           </Link>
         ) : (
@@ -101,7 +101,7 @@ export default async function CategoryPage({
             <Link
               key={p}
               className="btn"
-              href={`/category/${params.id}?page=${p}`}
+              href={`/category/${id}?page=${p}`}
               style={p === page ? { fontWeight: 700, textDecoration: "underline" } : undefined}
             >
               {p}
@@ -111,7 +111,7 @@ export default async function CategoryPage({
         </div>
 
         {nextPage ? (
-          <Link className="btn" href={`/category/${params.id}?page=${nextPage}`}>
+          <Link className="btn" href={`/category/${id}?page=${nextPage}`}>
             Вперёд →
           </Link>
         ) : (
@@ -126,3 +126,4 @@ export default async function CategoryPage({
       </div>
     </main>
   );
+}
