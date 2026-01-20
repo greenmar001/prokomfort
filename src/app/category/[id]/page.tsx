@@ -37,70 +37,84 @@ export default async function CategoryPage({
   const data = await res.json();
   */
 
-  // Use direct logic to avoid "fetch from self" issues during SSR/ISR which can cause 500s or timeouts
-  const data = await getCategoryProducts(Number((await params).id), (page - 1) * limit, limit);
-  const products = data.products ?? [];
-  const count = Number(data.count ?? 0);
+  try {
+    // Use direct logic to avoid "fetch from self" issues during SSR/ISR which can cause 500s or timeouts
+    const data = await getCategoryProducts(Number(id), (page - 1) * limit, limit);
+    const products = data.products ?? [];
+    const count = Number(data.count ?? 0);
 
-  const totalPages = Math.max(1, Math.ceil(count / limit));
-  const prevPage = page > 1 ? page - 1 : null;
-  const nextPage = page < totalPages ? page + 1 : null;
+    const totalPages = Math.max(1, Math.ceil(count / limit));
+    const prevPage = page > 1 ? page - 1 : null;
+    const nextPage = page < totalPages ? page + 1 : null;
 
-  // чтобы не показывать 200 страниц — делаем окно вокруг текущей
-  const windowSize = 2;
-  const start = Math.max(1, page - windowSize);
-  const end = Math.min(totalPages, page + windowSize);
-  const pages = [];
-  for (let p = start; p <= end; p++) pages.push(p);
+    // чтобы не показывать 200 страниц — делаем окно вокруг текущей
+    const windowSize = 2;
+    const start = Math.max(1, page - windowSize);
+    const end = Math.min(totalPages, page + windowSize);
+    const pages = [];
+    for (let p = start; p <= end; p++) pages.push(p);
 
-  return (
-    <main style={{ padding: 24 }}>
-      <div className="grid">
-        {products.map((p: ProductLike) => (
-          <ProductCard key={p.id} product={p} />
-        ))}
-      </div>
-
-      <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 20, flexWrap: "wrap" }}>
-        {prevPage ? (
-          <Link className="btn" href={`/category/${params.id}?page=${prevPage}`}>
-            ← Назад
-          </Link>
-        ) : (
-          <span className="btn" style={{ opacity: 0.5, pointerEvents: "none" }}>
-            ← Назад
-          </span>
-        )}
-
-        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-          {start > 1 ? <span>…</span> : null}
-          {pages.map((p) => (
-            <Link
-              key={p}
-              className="btn"
-              href={`/category/${params.id}?page=${p}`}
-              style={p === page ? { fontWeight: 700, textDecoration: "underline" } : undefined}
-            >
-              {p}
-            </Link>
+    return (
+      <main style={{ padding: 24 }}>
+        <div className="grid">
+          {products.map((p: ProductLike) => (
+            <ProductCard key={p.id} product={p} />
           ))}
-          {end < totalPages ? <span>…</span> : null}
         </div>
 
-        {nextPage ? (
-          <Link className="btn" href={`/category/${params.id}?page=${nextPage}`}>
-            Вперёд →
-          </Link>
-        ) : (
-          <span className="btn" style={{ opacity: 0.5, pointerEvents: "none" }}>
-            Вперёд →
-          </span>
-        )}
+        <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 20, flexWrap: "wrap" }}>
+          {prevPage ? (
+            <Link className="btn" href={`/category/${params.id}?page=${prevPage}`}>
+              ← Назад
+            </Link>
+          ) : (
+            <span className="btn" style={{ opacity: 0.5, pointerEvents: "none" }}>
+              ← Назад
+            </span>
+          )}
 
-        <span style={{ marginLeft: "auto", opacity: 0.75 }}>
-          Страница {page} из {totalPages} (всего {count})
-        </span>
+          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+            {start > 1 ? <span>…</span> : null}
+            {pages.map((p) => (
+              <Link
+                key={p}
+                className="btn"
+                href={`/category/${params.id}?page=${p}`}
+                style={p === page ? { fontWeight: 700, textDecoration: "underline" } : undefined}
+              >
+                {p}
+              </Link>
+            ))}
+            {end < totalPages ? <span>…</span> : null}
+          </div>
+
+          {nextPage ? (
+            <Link className="btn" href={`/category/${params.id}?page=${nextPage}`}>
+              Вперёд →
+            </Link>
+          ) : (
+            <span className="btn" style={{ opacity: 0.5, pointerEvents: "none" }}>
+              Вперёд →
+            </span>
+          )}
+
+          <span style={{ marginLeft: "auto", opacity: 0.75 }}>
+            Страница {page} из {totalPages} (всего {count})
+          </span>
+        </div>
+      </main>
+    );
+  } catch (e: any) {
+    return (
+      <div style={{ padding: 40, color: "red" }}>
+        <h2>Ошибка при загрузке категории</h2>
+        <pre>{e.message}</pre>
+        <p>Пожалуйста, проверьте консоль сервера или сообщите об этом администратору.</p>
+        <details>
+          <summary>Details</summary>
+          <pre>{JSON.stringify(e, null, 2)}</pre>
+        </details>
       </div>
-    </main>
-  );
+    );
+  }
 }
