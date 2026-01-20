@@ -35,7 +35,7 @@ async function waGet<T>(pathOrUrl: string, opts: Opts = {}): Promise<T> {
   const contentType = res.headers.get("content-type") || "";
   const bodyText = await res.text();
 
-  if (!res.ok) throw new Error(`WA ${res.status} at ${url}: ${bodyText.slice(0, 400)}`);
+  if (!res.ok) throw new Error(`WA ${res.status}: ${bodyText.slice(0, 400)}`);
   if (!contentType.includes("application/json")) {
     throw new Error(
       `WA: expected JSON but got ${contentType || "unknown"} from ${url}. First bytes: ${bodyText.slice(0, 400)}`
