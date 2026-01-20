@@ -8,16 +8,26 @@ import {
   ChevronDown,
   Headphones,
   Truck,
-  Grid,
   Percent,
   Tag,
   MessageCircle,
   Send
 } from "lucide-react";
+import { getCategories } from "@/lib/wa";
+import { Category } from "@/types";
+import CatalogMenu from "./CatalogMenu";
 
-export default function Header() {
+export default async function Header() {
+  const data = await getCategories();
+  let categories: Category[] = [];
+  if (Array.isArray(data)) {
+    categories = data;
+  } else if (data && "categories" in data) {
+    categories = data.categories;
+  }
+
   return (
-    <header className="flex flex-col w-full font-sans">
+    <header className="flex flex-col w-full font-sans relative z-30">
       {/* 1. Top Bar */}
       <div className="bg-[#0f172a] text-white text-[13px] py-2.5 border-b border-white/10">
         <div className="container flex flex-col md:flex-row justify-between items-center gap-4">
@@ -122,17 +132,8 @@ export default function Header() {
       {/* 3. Bottom Bar (Catalog & Search) */}
       <div className="bg-white py-4 pb-6">
         <div className="container flex flex-col md:flex-row items-center gap-6">
-          {/* Catalog Button */}
-          <button className="w-full md:w-auto bg-[#fb6a00] hover:bg-[#e05e00] text-white pl-6 pr-8 py-3.5 rounded-lg flex items-center justify-center gap-3 font-bold text-[15px] transition shadow-lg shadow-orange-500/20 active:translate-y-0.5">
-            <Grid size={20} fill="white" fillOpacity={0.2} />
-            <span className="uppercase tracking-wide">Каталог товаров</span>
-            <div className="flex flex-wrap gap-0.5 w-4 h-4 ml-1 opacity-60">
-              <div className="w-1.5 h-1.5 bg-white rounded-[1px]"></div>
-              <div className="w-1.5 h-1.5 bg-white rounded-[1px]"></div>
-              <div className="w-1.5 h-1.5 bg-white rounded-[1px]"></div>
-              <div className="w-1.5 h-1.5 bg-white rounded-[1px]"></div>
-            </div>
-          </button>
+          {/* Catalog Button Component */}
+          <CatalogMenu categories={categories} />
 
           {/* Search Input */}
           <div className="flex-1 relative w-full">

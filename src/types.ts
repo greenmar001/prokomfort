@@ -27,4 +27,5 @@ export type Category = {
   id: number;
   name: string;
   count?: number;
+  parent_id?: number;
 };

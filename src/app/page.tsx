@@ -13,6 +13,9 @@ export default async function Page() {
     cats = data.categories;
   }
 
+  // 1st level only
+  cats = cats.filter(c => !c.parent_id || c.parent_id === 0);
+
   return (
     <main className="p-6">
       <h1 className="text-2xl font-semibold">Категории</h1>
