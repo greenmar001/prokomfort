@@ -1,4 +1,5 @@
 import "server-only";
+import { Category, ProductLike } from "@/types";
 
 const BASE_RAW = process.env.WA_HEADLESS_BASE_URL;
 if (!BASE_RAW) throw new Error("WA_HEADLESS_BASE_URL is not set");
@@ -45,11 +46,12 @@ async function waGet<T>(pathOrUrl: string, opts: Opts = {}): Promise<T> {
 }
 
 export async function getCategories() {
-  return waGet<any>("/categories", { revalidate: 3600 });
+  // Supports both array response and object wrapper
+  return waGet<{ categories: Category[] } | Category[]>("/categories", { revalidate: 3600 });
 }
 
 export async function getProduct(id: number) {
-  return waGet<any>(`/product/${id}`, { revalidate: 300 });
+  return waGet<ProductLike>(`/product/${id}`, { revalidate: 300 });
 }
 
 export async function getCategoryProducts(categoryId: number, offset = 0, limit = 24) {
@@ -58,5 +60,5 @@ export async function getCategoryProducts(categoryId: number, offset = 0, limit 
     limit,
     with: "images,skus",
   });
-  return waGet<any>(url, { revalidate: 60 });
+  return waGet<{ products: ProductLike[]; count: number }>(url, { revalidate: 60 });
 }

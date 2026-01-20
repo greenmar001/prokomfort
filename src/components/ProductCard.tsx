@@ -1,23 +1,6 @@
 import Link from "next/link";
-
-type Image = {
-  url_thumb?: string;
-  url_crop?: string;
-  url_big?: string;
-};
-
-type Sku = {
-  price_str?: string;
-  available?: number | boolean;
-};
-
-export type ProductLike = {
-  id: number;
-  name?: string;
-  summary?: string;
-  images?: Image[];
-  skus?: Sku[];
-};
+import Image from "next/image";
+import { ProductLike } from "@/types";
 
 function waImageUrl(productId: number, imageId: number, ext: string, size: "200x0" | "96x96" | "970") {
   const a = String(productId % 100).padStart(2, "0");           // last 2
@@ -25,7 +8,7 @@ function waImageUrl(productId: number, imageId: number, ext: string, size: "200x
   return `https://pro-komfort.com/wa-data/public/shop/products/${a}/${b}/${productId}/images/${imageId}/${imageId}.${size}.${ext}`;
 }
 
-function pickImg(p: any): string | null {
+function pickImg(p: ProductLike): string | null {
   // 1) если API уже дал images[]
   const im = p.images?.[0];
   const fromImages = im?.url_thumb || im?.url_crop || im?.url_big;
@@ -53,17 +36,22 @@ function isAvailable(p: ProductLike): boolean | null {
 }
 
 export default function ProductCard({ product }: { product: ProductLike }) {
-  const img = pickImg(product);
+  const imgUrl = pickImg(product);
   const price = pickPrice(product);
   const avail = isAvailable(product);
 
   return (
     <div className="card">
       <Link href={`/product/${product.id}`} className="card-link" aria-label={product.name ?? `Товар ${product.id}`}>
-        <div className="thumb">
-          {img ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={img} alt={product.name ?? ""} loading="lazy" />
+        <div className="thumb relative w-full aspect-square">
+          {imgUrl ? (
+            <Image
+              src={imgUrl}
+              alt={product.name ?? ""}
+              fill
+              className="object-contain"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            />
           ) : (
             <span>Нет фото</span>
           )}
@@ -72,13 +60,13 @@ export default function ProductCard({ product }: { product: ProductLike }) {
         <div className="title">{product.name ?? `Товар #${product.id}`}</div>
 
         {product.summary ? (
-          <div className="muted" style={{ fontSize: 13, lineHeight: 1.35, maxHeight: 36, overflow: "hidden" }}>
+          <div className="muted text-[13px] leading-[1.35] max-h-[36px] overflow-hidden">
             {product.summary}
           </div>
         ) : null}
       </Link>
 
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
+      <div className="flex items-center justify-between gap-[10px]">
         <div className="price">{price}</div>
         {avail === null ? (
           <span className="badge">—</span>
@@ -89,11 +77,11 @@ export default function ProductCard({ product }: { product: ProductLike }) {
         )}
       </div>
 
-      <div style={{ display: "flex", gap: 10 }}>
-        <Link href={`/product/${product.id}`} className="btn" style={{ flex: 1, textAlign: "center" }}>
+      <div className="flex gap-[10px]">
+        <Link href={`/product/${product.id}`} className="btn flex-1 text-center">
           Подробнее
         </Link>
-        <button className="btn" style={{ width: 120 }} disabled title="Подключим корзину на следующем этапе">
+        <button className="btn w-[120px]" disabled title="Подключим корзину на следующем этапе">
           В корзину
         </button>
       </div>
