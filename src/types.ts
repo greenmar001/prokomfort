@@ -7,6 +7,7 @@ export type Image = {
 export type Sku = {
   price_str?: string;
   available?: number | boolean;
+  compare_price?: number;
 };
 
 export type ProductLike = {
