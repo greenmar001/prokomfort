@@ -1,6 +1,6 @@
 import Link from "next/link";
 // import Breadcrumbs from "@/components/Breadcrumbs";
-// import { getCategoryProducts, getProduct } from "@/lib/wa";
+import { getCategoryProducts } from "@/lib/wa";
 import ProductCard from "@/components/ProductCard";
 import { ProductLike } from "@/types";
 export const revalidate = 60;
@@ -23,15 +23,22 @@ export default async function CategoryPage({
   params: { id: string };
   searchParams?: { page?: string };
 }) {
-  const page = Math.max(1, Number(searchParams?.page ?? "1"));
+  const { id } = await params;
+  const pParam = (await searchParams)?.page;
+  const page = Math.max(1, Number(pParam ?? "1"));
   const limit = 24;
 
+  /*
   const base = process.env.NEXT_PUBLIC_SITE_URL ?? "";
   const res = await fetch(`${base}/api/catalog/category/${params.id}?page=${page}&limit=${limit}`, {
     cache: "no-store",
   });
 
   const data = await res.json();
+  */
+
+  // Use direct logic to avoid "fetch from self" issues during SSR/ISR which can cause 500s or timeouts
+  const data = await getCategoryProducts(Number((await params).id), (page - 1) * limit, limit);
   const products = data.products ?? [];
   const count = Number(data.count ?? 0);
 
