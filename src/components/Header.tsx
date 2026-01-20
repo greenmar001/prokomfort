@@ -1,12 +1,10 @@
 import Link from "next/link";
 import {
-  Phone,
   Mail,
   ShoppingCart,
   Heart,
   User,
   BarChart3,
-  Search,
   ChevronDown,
   Headphones,
   Truck,

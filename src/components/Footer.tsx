@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Phone, Mail, Send, MessageCircle, AtSign } from "lucide-react";
+import { Phone, Mail, Send, MessageCircle } from "lucide-react";
 
 export default function Footer() {
   return (
@@ -93,7 +93,7 @@ export default function Footer() {
         {/* Footer Bottom */}
         <div className="border-t border-gray-100 pt-6 flex flex-col md:flex-row justify-between items-center gap-4 text-[13px] text-gray-500">
           <div className="flex flex-col md:flex-row items-center gap-1 md:gap-4">
-            <span>© {new Date().getFullYear()} ООО "Прокомфорт".</span>
+            <span>© {new Date().getFullYear()} ООО &quot;Прокомфорт&quot;.</span>
             <a href="https://digi-web.ru/" target="_blank" rel="nofollow" className="hover:text-orange-500 transition">Digi-Web.ru — создание и поддержка сайта</a>
           </div>
           <Link href="/okompanii/polozhenie/" className="hover:text-orange-500 transition">
