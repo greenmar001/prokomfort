@@ -74,19 +74,11 @@ export default function Header() {
         <div className="container flex flex-col xl:flex-row items-center justify-between gap-6">
           {/* Logo area */}
           <Link href="/" className="flex items-center gap-3 group shrink-0">
-            {/* Simulated Logo Icon */}
-            <div className="w-10 h-10 relative">
-              <div className="absolute top-0 left-0 w-6 h-6 border-[4px] border-orange-500 rounded-sm transform rotate-45 translate-x-1"></div>
-              <div className="absolute bottom-0 right-0 w-6 h-6 border-[4px] border-[#0f172a] rounded-sm transform rotate-45 -translate-x-1"></div>
-            </div>
-            <div className="leading-tight flex flex-col">
-              <div className="font-black text-2xl tracking-wide text-[#0f172a] uppercase flex gap-1">
-                ПРО <span className="text-[#0f172a]">КОМФОРТ</span>
-              </div>
-              <div className="text-[9px] text-gray-500 font-bold tracking-[0.2em] uppercase pl-0.5">
-                Объединяем лучшее
-              </div>
-            </div>
+            <img
+              src="https://pro-komfort.com/wa-data/public/site/img/logo-ng.svg"
+              alt="PRO Komfort"
+              className="h-12 w-auto object-contain"
+            />
           </Link>
 
           {/* Navigation */}
