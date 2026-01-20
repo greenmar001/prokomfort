@@ -10,6 +10,8 @@ export type Sku = {
   compare_price?: number;
 };
 
+export type FeatureValue = string | number | { value: string | number; unit?: string };
+
 export type ProductLike = {
   id: number;
   name?: string;
@@ -18,9 +20,12 @@ export type ProductLike = {
   skus?: Sku[];
   image_id?: string | number;
   ext?: string;
-  count?: number; // Used in Page for categories (which are also seemingly treated loosely)
+  count?: number;
   sku_id?: string | number;
   description?: string;
+  features?: Record<string, FeatureValue>; // Key-value map of features
+  rating?: number;
+  vote_count?: number;
 };
 
 export type Category = {

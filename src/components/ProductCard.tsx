@@ -3,7 +3,7 @@ import Image from "next/image";
 import { ProductLike } from "@/types";
 import { Heart, BarChart3, Star, MessageCircle, ShoppingCart } from "lucide-react";
 
-function waImageUrl(productId: number, imageId: number, ext: string, size: "200x0" | "96x96" | "970") {
+function waImageUrl(productId: number, imageId: number, ext: string, size: "200x0" | "96x96" | "970" | "500x0") {
   const a = String(productId % 100).padStart(2, "0");
   const b = String(Math.floor(productId / 100) % 100).padStart(2, "0");
   return `https://pro-komfort.com/wa-data/public/shop/products/${a}/${b}/${productId}/images/${imageId}/${imageId}.${size}.${ext}`;
@@ -11,13 +11,15 @@ function waImageUrl(productId: number, imageId: number, ext: string, size: "200x
 
 function pickImg(p: ProductLike): string | null {
   const im = p.images?.[0];
-  const fromImages = im?.url_thumb || im?.url_crop || im?.url_big;
+  // Prefer bigger images for better quality
+  const fromImages = im?.url_big || im?.url_crop || im?.url_thumb;
   if (fromImages) return fromImages;
 
   const imageId = p.image_id;
   const ext = p.ext;
   if (imageId && ext && p.id) {
-    return waImageUrl(Number(p.id), Number(imageId), String(ext).replace(".", ""), "200x0");
+    // Fallback to "500x0" (medium-large) - better than 200x0 but lighter than 970
+    return waImageUrl(Number(p.id), Number(imageId), String(ext).replace(".", ""), "500x0");
   }
   return null;
 }
