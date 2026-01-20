@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { getProduct, getCategories } from "@/lib/wa";
 import { ProductLike, Category } from "@/types";
+import ProductGallery from "@/components/ProductGallery";
 import {
   Star,
   MessageCircle,
@@ -129,30 +130,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
 
         {/* Gallery (Left - 5 cols) */}
         <div className="lg:col-span-5">
-          <div className="relative aspect-square w-full bg-white rounded-xl border border-gray-100 flex items-center justify-center mb-4 p-6">
-            {mainImageUrl ? (
-              <div className="relative w-full h-full">
-                <Image src={mainImageUrl} alt={p.name || ""} fill className="object-contain" />
-                {/* Arrows mockup */}
-                <button className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white shadow-md flex items-center justify-center text-gray-400 hover:text-orange-500">
-                  <ChevronRight className="rotate-180" size={18} />
-                </button>
-                <button className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white shadow-md flex items-center justify-center text-gray-400 hover:text-orange-500">
-                  <ChevronRight size={18} />
-                </button>
-              </div>
-            ) : (
-              <div className="text-gray-300">Нет фото</div>
-            )}
-          </div>
-          {/* Thumbs */}
-          <div className="flex gap-2 overflow-x-auto pb-2">
-            {[1, 2, 3, 4].map((_, i) => (
-              <div key={i} className={`w-20 h-20 border rounded-lg flex-shrink-0 cursor-pointer p-1 ${i === 0 ? 'border-blue-500 ring-1 ring-blue-500' : 'border-gray-200 hover:border-gray-300'}`}>
-                {mainImageUrl && <div className="relative w-full h-full"><Image src={mainImageUrl} alt="" fill className="object-contain" /></div>}
-              </div>
-            ))}
-          </div>
+          <ProductGallery product={p} />
         </div>
 
         {/* Center Specs (4 cols) */}
