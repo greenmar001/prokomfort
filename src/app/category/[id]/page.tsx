@@ -78,7 +78,7 @@ export default async function CategoryPage({
 
   return (
     <main style={{ padding: 24 }}>
-      <div className="grid">
+      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
         {products.map((p: ProductLike) => (
           <ProductCard key={p.id} product={p} />
         ))}
