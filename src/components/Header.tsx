@@ -82,7 +82,7 @@ export default function Header() {
           </Link>
 
           {/* Navigation */}
-          <nav className="hidden xl:flex gap-8 text-[14px] font-bold text-gray-700 uppercase tracking-wide">
+          <nav className="hidden xl:flex gap-6 text-[13px] font-semibold text-gray-600 uppercase tracking-normal">
             {["Компания", "Доставка и оплата", "Гарантии", "Новости", "Контакты", "Блог"].map((item) => (
               <Link key={item} href="#" className="hover:text-orange-500 transition relative group">
                 {item}
