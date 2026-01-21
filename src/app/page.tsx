@@ -5,13 +5,7 @@ import { Category } from "@/types";
 export const revalidate = 3600;
 
 export default async function Page() {
-  const data = await getCategories();
-  let cats: Category[] = [];
-  if (Array.isArray(data)) {
-    cats = data;
-  } else if (data && "categories" in data) {
-    cats = data.categories;
-  }
+  let cats = await getCategories();
 
   // 1st level only
   cats = cats.filter(c => !c.parent_id || c.parent_id === 0);
