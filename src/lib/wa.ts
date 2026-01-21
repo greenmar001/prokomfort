@@ -102,14 +102,26 @@ export async function getCategoryProducts(
 
 // --- Product ---
 
+// --- Product ---
+
 function findExact(products: ProductLike[], target: string): ProductLike | undefined {
-  // Check exact url, frontend_url, or if frontend_url ends with target
+  // Normalize target: remove leading/trailing slashes, lowercase
+  const normTarget = target.toLowerCase().replace(/^\/+/, "").replace(/\/+$/, "");
+
   return products.find(p => {
-    if (p.url === target) return true;
-    if (p.frontend_url === target) return true;
-    // p.frontend_url usually is like "category/subcategory/product-name"
-    // target might be "product-name" or "category/subcategory/product-name"
-    if (p.frontend_url && String(target).indexOf('/') === -1 && p.frontend_url.endsWith(`/${target}`)) return true;
+    const normUrl = (p.url || "").toLowerCase().replace(/^\/+/, "").replace(/\/+$/, "");
+    const normFrontend = (p.frontend_url || "").toLowerCase().replace(/^\/+/, "").replace(/\/+$/, "");
+
+    // 1. Direct match on 'url' field (e.g. "product-name" === "product-name")
+    if (normUrl === normTarget) return true;
+
+    // 2. Direct match on 'frontend_url' (e.g. "category/product-name" === "category/product-name")
+    if (normFrontend === normTarget) return true;
+
+    // 3. Match suffix of frontend_url (e.g. target "product-name" matches "category/product-name")
+    // Ensure we match a full segment path (preceded by slash)
+    if (normFrontend.endsWith("/" + normTarget)) return true;
+
     return false;
   });
 }
@@ -160,41 +172,9 @@ export async function getProduct(idOrSlug: number | string): Promise<ProductLike
         }
       }
 
-      // Strategy 3: Search by "Model Code" (any part containing digits)
-      const modelParts = parts.filter(p => /\d/.test(p));
-      if (modelParts.length > 0) {
-        const queryModel = modelParts.join(" ");
-        // Ensure we don't repeat queries
-        if (queryModel !== queryFull && queryModel !== parts.slice(-2).join(" ")) {
-          const resModel = await waGet<{ products: ProductLike[] }>(withQuery("/products/search", { query: queryModel, with: "images,skus,frontend_url" }), { revalidate: 60 });
-          const productsModel = resModel.products || [];
-          console.log(`[getProduct] Strategy 3 (Model) queries "${queryModel}" found ${productsModel.length} items.`);
+      // REMOVED SAFEGUARDS: Strategy 3 and Blind Fallbacks removed to prevent "Random Product" issues.
+      // If we don't have an exact match on URL/FrontendURL, we return 404.
 
-          const match3 = findExact(productsModel, targetSlug);
-          if (match3) {
-            console.log(`[getProduct] Match found via Strategy 3: ${match3.id}`);
-            return match3;
-          }
-
-          // If we have model results, they are usually high quality matches
-          if (productsModel.length > 0) {
-            console.warn(`[getProduct] Using first Model match for "${idOrSlug}" -> ${productsModel[0].name}`);
-            return productsModel[0];
-          }
-        }
-      }
-
-      // Fallback: If we found SOMETHING in full search, return it? 
-      if (productsFull.length > 0) {
-        console.warn(`[getProduct] Fuzzy match used (Full) for "${idOrSlug}" -> ${productsFull[0].name} (${productsFull[0].frontend_url})`);
-        return productsFull[0];
-      }
-
-      // Fallback: If we found SOMETHING in Last 2 search, return it?
-      if (productsLast.length > 0) {
-        console.warn(`[getProduct] Fuzzy match used (Last 2) for "${idOrSlug}" -> ${productsLast[0].name}`);
-        return productsLast[0];
-      }
     } catch (searchErr) {
       console.error("Search fallback failed", searchErr);
     }
