@@ -1,4 +1,4 @@
-
+import Link from "next/link";
 import { getProduct } from "@/lib/wa";
 
 export default async function DebugProductPage({
@@ -39,7 +39,7 @@ export default async function DebugProductPage({
     return (
         <div className="p-10 font-mono">
             <h1 className="text-2xl font-bold mb-4">Result for: {slug}</h1>
-            <a href="/debug-product" className="text-blue-500 underline mb-6 block">Back</a>
+            <Link href="/debug-product" className="text-blue-500 underline mb-6 block">Back</Link>
 
             {error ? (
                 <div className="bg-red-50 text-red-700 p-4 rounded border border-red-200">
