@@ -19,13 +19,7 @@ import { Category } from "@/types";
 import CatalogMenu from "./CatalogMenu";
 
 export default async function Header() {
-  const data = await getCategories();
-  let categories: Category[] = [];
-  if (Array.isArray(data)) {
-    categories = data;
-  } else if (data && "categories" in data) {
-    categories = data.categories;
-  }
+  const categories = await getCategories();
 
   return (
     <header className="flex flex-col w-full font-sans relative z-30">
