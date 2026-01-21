@@ -12,7 +12,11 @@ const headers = {
  * Generic Fetch Wrapper
  */
 async function waGet<T>(endpoint: string, options: RequestInit & { revalidate?: number } = {}): Promise<T> {
-  const url = `${WA_BASE_URL}${endpoint}`;
+  // Normalize base URL by removing trailing slash
+  const base = WA_BASE_URL.replace(/\/$/, "");
+  // Normalize endpoint by ensuring leading slash
+  const path = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
+  const url = `${base}${path}`;
   try {
     const res = await fetch(url, {
       ...options,
