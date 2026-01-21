@@ -10,7 +10,9 @@ if (!WA_BASE_URL) {
 const headers = {
   "Content-Type": "application/json",
   "WA-Headless-APIVer": "1.0",
-  "User-Agent": "Mozilla/5.0 (compatible; ProKomfortBot/1.0; +https://pro-komfort.com)",
+  "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+  "Accept": "application/json, text/plain, */*",
+  "Accept-Language": "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7",
 };
 
 /**
