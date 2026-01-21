@@ -2,7 +2,7 @@ import { getCategories, getProduct } from "@/lib/wa";
 import CategoryView from "@/components/CategoryView";
 import ProductView from "@/components/ProductView";
 import { notFound } from "next/navigation";
-import { Category, ProductLike } from "@/types";
+import { ProductLike } from "@/types";
 
 export const revalidate = 60;
 

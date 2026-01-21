@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getCategoryProducts, getCategories } from "@/lib/wa";
 import ProductCard from "@/components/ProductCard";
-import { ProductLike, Category } from "@/types";
+import { ProductLike } from "@/types";
 import { ChevronRight } from "lucide-react";
 import ProductSort from "@/components/ProductSort";
 
@@ -55,7 +55,7 @@ export default async function CategoryView({
     let error: unknown = null;
 
     try {
-        const data = await getCategoryProducts(Number(categoryId), (page - 1) * limit, limit, sort, order);
+        const data = await getCategoryProducts(Number(categoryId), { page, limit, sort, order });
         products = data.products ?? [];
         count = Number(data.count ?? 0);
     } catch (e) {
