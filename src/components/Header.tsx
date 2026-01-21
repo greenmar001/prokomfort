@@ -19,13 +19,7 @@ import { Category } from "@/types";
 import CatalogMenu from "./CatalogMenu";
 
 export default async function Header() {
-  const data = await getCategories();
-  let categories: Category[] = [];
-  if (Array.isArray(data)) {
-    categories = data;
-  } else if (data && "categories" in data) {
-    categories = data.categories;
-  }
+  const categories = await getCategories();
 
   return (
     <header className="flex flex-col w-full font-sans relative z-30">
@@ -83,9 +77,11 @@ export default async function Header() {
         <div className="container flex flex-col xl:flex-row items-center justify-between gap-6">
           {/* Logo area */}
           <Link href="/" className="flex items-center gap-3 group shrink-0">
-            <img
+            <Image
               src="https://pro-komfort.com/wa-data/public/site/img/logo-ng.svg"
               alt="PRO Komfort"
+              width={180}
+              height={48}
               className="h-12 w-auto object-contain"
             />
           </Link>

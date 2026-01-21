@@ -2,7 +2,7 @@ import { getCategories, getProduct } from "@/lib/wa";
 import CategoryView from "@/components/CategoryView";
 import ProductView from "@/components/ProductView";
 import { notFound } from "next/navigation";
-import { Category, ProductLike } from "@/types";
+import { ProductLike } from "@/types";
 
 export const revalidate = 60;
 
@@ -18,13 +18,7 @@ export default async function SlugPage({
     const slugPath = slug.join("/");
 
     // Fetch all categories
-    const catsData = await getCategories();
-    let allCats: Category[] = [];
-    if (Array.isArray(catsData)) {
-        allCats = catsData;
-    } else if (catsData && "categories" in catsData) {
-        allCats = catsData.categories;
-    }
+    const allCats = await getCategories();
 
     // 1. Try to find a matching Category first
     const targetCat = allCats.find(c => c.full_url === slugPath);
@@ -33,7 +27,9 @@ export default async function SlugPage({
         return <CategoryView categoryId={targetCat.id} searchParams={sp} baseUrl={`/${slugPath}`} />;
     }
 
-    // 2. If no category found, try finding a Product by the last segment
+
+    // 2. If no category found, try finding a Product by the full path
+    // We pass the full path so getProduct can match against frontend_url which includes categories
     const lastPart = slug[slug.length - 1];
 
     // Safety check for files
@@ -43,7 +39,8 @@ export default async function SlugPage({
 
     let product: ProductLike | null = null;
     try {
-        product = await getProduct(lastPart);
+        // Pass the FULL path (e.g. "category/product") to allow exact frontend_url matching
+        product = await getProduct(slugPath);
     } catch (e) {
         // Product not found or error
         console.error(`Failed to find category or product for path: ${slugPath}`, e);

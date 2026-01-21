@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getCategoryProducts, getCategories } from "@/lib/wa";
 import ProductCard from "@/components/ProductCard";
-import { ProductLike, Category } from "@/types";
+import { ProductLike } from "@/types";
 import { ChevronRight } from "lucide-react";
 import ProductSort from "@/components/ProductSort";
 
@@ -22,13 +22,8 @@ export default async function CategoryView({
     const limit = 24;
 
     // Fetch categories for breadcrumbs and subcategories
-    const catsData = await getCategories();
-    let allCats: Category[] = [];
-    if (Array.isArray(catsData)) {
-        allCats = catsData;
-    } else if (catsData && "categories" in catsData) {
-        allCats = catsData.categories;
-    }
+    // Fetch categories for breadcrumbs and subcategories
+    const allCats = await getCategories();
 
     const currentCat = allCats.find((c) => c.id === Number(categoryId));
     const subCats = allCats.filter((c) => c.parent_id === Number(categoryId));
@@ -60,7 +55,7 @@ export default async function CategoryView({
     let error: unknown = null;
 
     try {
-        const data = await getCategoryProducts(Number(categoryId), (page - 1) * limit, limit, sort, order);
+        const data = await getCategoryProducts(Number(categoryId), { page, limit, sort, order });
         products = data.products ?? [];
         count = Number(data.count ?? 0);
     } catch (e) {
@@ -176,8 +171,8 @@ export default async function CategoryView({
                                     key={p}
                                     href={`${baseUrl}${buildQuery(p)}`}
                                     className={`w-10 h-10 flex items-center justify-center rounded-lg transition ${p === page
-                                            ? "bg-orange-500 text-white shadow-md shadow-orange-200"
-                                            : "bg-white border border-gray-200 hover:border-orange-500 hover:text-orange-500"
+                                        ? "bg-orange-500 text-white shadow-md shadow-orange-200"
+                                        : "bg-white border border-gray-200 hover:border-orange-500 hover:text-orange-500"
                                         }`}
                                 >
                                     {p}
