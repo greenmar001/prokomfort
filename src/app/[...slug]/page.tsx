@@ -17,7 +17,7 @@ export default async function SlugPage({
     const sp = await searchParams;
     const slugPath = slug.join("/");
 
-    // Fetch all categories to find the ID (and for product breadcrumbs)
+    // Fetch all categories
     const catsData = await getCategories();
     let allCats: Category[] = [];
     if (Array.isArray(catsData)) {
@@ -27,40 +27,30 @@ export default async function SlugPage({
     }
 
     // 1. Try to find a matching Category first
-    // Strategy: Try to match full_url (e.g. "catalog/air-conditioners") first
-    let targetCat = allCats.find(c => c.full_url === slugPath);
-
-    if (!targetCat) {
-        const lastSegment = slug[slug.length - 1];
-        // Weak fallback: try finding by exact url match of last segment if full_url check failed
-        // But be careful of collisions. Prefer strict full_url.
-        // targetCat = allCats.find(c => c.url === lastSegment);
-    }
+    const targetCat = allCats.find(c => c.full_url === slugPath);
 
     if (targetCat) {
         return <CategoryView categoryId={targetCat.id} searchParams={sp} baseUrl={`/${slugPath}`} />;
     }
 
     // 2. If no category found, try finding a Product by the last segment
-    // This supports URLs like /category/subcategory/product-name OR just /product-name
-    // The previous update to `getProduct` allows searching by the last slug part if direct fetch fails.
     const lastPart = slug[slug.length - 1];
 
-    // Safety check: if it looks like a system route or resource, ignore
+    // Safety check for files
     if (lastPart.includes(".")) {
-        // likely a file like robots.txt or sitemap.xml if it got here, though next.js usually handles those.
-        // ignore .html suffix if present
         if (!lastPart.endsWith(".html")) return notFound();
     }
 
+    let product: ProductLike | null = null;
     try {
-        const product = await getProduct(lastPart);
-        if (product) {
-            return <ProductView product={product} categories={allCats} />;
-        }
+        product = await getProduct(lastPart);
     } catch (e) {
-        // Product not found
+        // Product not found or error
         console.error(`Failed to find category or product for path: ${slugPath}`, e);
+    }
+
+    if (product) {
+        return <ProductView product={product} categories={allCats} />;
     }
 
     // 3. Not found

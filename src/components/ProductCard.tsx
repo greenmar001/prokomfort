@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { ProductLike } from "@/types";
-import { Heart, BarChart3, Star, MessageCircle, ShoppingCart } from "lucide-react";
+import { Heart, BarChart3, Star, MessageCircle } from "lucide-react";
 
 function waImageUrl(productId: number, imageId: number, ext: string, size: "200x0" | "96x96" | "970" | "500x0") {
   const a = String(productId % 100).padStart(2, "0");
