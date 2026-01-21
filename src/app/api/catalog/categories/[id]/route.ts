@@ -10,7 +10,7 @@ export async function GET(req: Request, ctx: { params: Promise<{ id: string }> }
   const limit = Math.min(60, Math.max(6, Number(url.searchParams.get("limit") ?? "24")));
   const offset = (page - 1) * limit;
 
-  const data = await getCategoryProducts(Number(id), offset, limit);
+  const data = await getCategoryProducts(Number(id), { page, limit });
 
   // waCategoryProducts может возвращать либо массив, либо объект {count, products...}
   // Нормализуем:
