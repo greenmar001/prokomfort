@@ -1,11 +1,12 @@
 
 import { Category, ProductLike } from "@/types";
 
-const WA_BASE_URL = process.env.WA_HEADLESS_BASE_URL || "https://pro-komfort.com/wa-api/headless";
+const WA_BASE_URL = process.env.WA_HEADLESS_BASE_URL || "https://pro-komfort.com/api/v1";
 
 const headers = {
   "Content-Type": "application/json",
   "WA-Headless-APIVer": "1.0",
+  "User-Agent": "Mozilla/5.0 (compatible; ProKomfortBot/1.0; +https://pro-komfort.com)",
 };
 
 /**
