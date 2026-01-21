@@ -1,27 +1,31 @@
 import Link from "next/link";
 import { getProduct } from "@/lib/wa";
 
+import Link from "next/link";
+import { getProduct } from "@/lib/wa";
+
 export default async function DebugProductPage({
     searchParams,
 }: {
-    searchParams: { slug?: string };
+    searchParams: Promise<{ slug?: string }>;
 }) {
-    const slug = searchParams.slug;
+    const { slug } = await searchParams;
 
     if (!slug) {
         return (
             <div className="p-10">
                 <h1 className="text-2xl font-bold mb-4">Debug Product Lookup</h1>
-                <form>
+                <form action="/debug-product" method="get">
                     <input
                         name="slug"
                         placeholder="Enter product slug"
-                        className="border p-2 rounded mr-2 w-96"
+                        className="border p-2 rounded mr-2 w-96 text-black"
                     />
                     <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
                         Test
                     </button>
                 </form>
+                <p className="mt-4 text-sm text-gray-500">Enter a slug or ID to test API fetch.</p>
             </div>
         );
     }
@@ -39,7 +43,20 @@ export default async function DebugProductPage({
     return (
         <div className="p-10 font-mono">
             <h1 className="text-2xl font-bold mb-4">Result for: {slug}</h1>
-            <Link href="/debug-product" className="text-blue-500 underline mb-6 block">Back</Link>
+
+            <form action="/debug-product" method="get" className="mb-6">
+                <input
+                    name="slug"
+                    placeholder="Enter product slug"
+                    className="border p-2 rounded mr-2 w-96 text-black"
+                    defaultValue={slug}
+                />
+                <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
+                    Test Again
+                </button>
+            </form>
+
+            <Link href="/debug-product" className="text-blue-500 underline mb-6 block">Reset</Link>
 
             {error ? (
                 <div className="bg-red-50 text-red-700 p-4 rounded border border-red-200">
