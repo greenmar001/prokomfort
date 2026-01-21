@@ -22,6 +22,9 @@ export default async function SlugPage({
     // Flatten the tree to search all levels (subcategories too)
     const allCats = flattenCategories(rootCats);
 
+    console.log(`Debug: Requested slug="${slugPath}"`);
+    console.log(`Debug: Found ${allCats.length} categories. URLs:`, allCats.map(c => c.full_url));
+
     // 1. Try to find a matching Category first
     const targetCat = allCats.find(c => c.full_url === slugPath);
 
