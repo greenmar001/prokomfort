@@ -131,7 +131,7 @@ export async function getProduct(idOrSlug: number | string): Promise<ProductLike
       // Strategy 1: Full fuzzy search (all words)
       // Replace slashes with spaces to support full path searching "cat/sub/prod" -> "cat sub prod"
       const queryFull = targetSlug.replace(/[-_/]/g, " ").replace(".html", "");
-      const resFull = await waGet<{ products: ProductLike[] }>(withQuery("/products/search", { query: queryFull }), { revalidate: 60 });
+      const resFull = await waGet<{ products: ProductLike[] }>(withQuery("/products/search", { query: queryFull, with: "images,skus,frontend_url" }), { revalidate: 60 });
       const productsFull = resFull.products || [];
 
       const match1 = findExact(productsFull, targetSlug);
@@ -145,7 +145,7 @@ export async function getProduct(idOrSlug: number | string): Promise<ProductLike
         const queryLast = parts.slice(-2).join(" ");
         // Avoid repeating query if same
         if (queryLast !== queryFull) {
-          const resLast = await waGet<{ products: ProductLike[] }>(withQuery("/products/search", { query: queryLast }), { revalidate: 60 });
+          const resLast = await waGet<{ products: ProductLike[] }>(withQuery("/products/search", { query: queryLast, with: "images,skus,frontend_url" }), { revalidate: 60 });
           const productsLast = resLast.products || [];
 
           const match2 = findExact(productsLast, targetSlug);
@@ -156,7 +156,10 @@ export async function getProduct(idOrSlug: number | string): Promise<ProductLike
       // Fallback: If we found SOMETHING in full search, return it? 
       // User reported 404, but if we trust detailed search query, first result often correct.
       if (productsFull.length > 0) {
-        // console.warn(`Loose match for slug "${idOrSlug}" -> ID ${productsFull[0].id}`);
+        // Only fallback if we have at least a partial containment?
+        // Actually, if findExact failed, maybe the URL is totally different.
+        // But for safe fallback, let's return the first one logged as warning.
+        console.warn(`[getProduct] Fuzzy match used for "${idOrSlug}" -> ${productsFull[0].name} (${productsFull[0].frontend_url})`);
         return productsFull[0];
       }
     } catch (searchErr) {
