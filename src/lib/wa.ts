@@ -116,7 +116,7 @@ function findExact(products: ProductLike[], target: string): ProductLike | undef
 
 export async function getProduct(idOrSlug: number | string): Promise<ProductLike> {
   // If it's a number, just fetch by ID
-  if (typeof idOrSlug === "number" || /^\\d+$/.test(String(idOrSlug))) {
+  if (typeof idOrSlug === "number" || /^\d+$/.test(String(idOrSlug))) {
     return waGet<ProductLike>(`/product/${idOrSlug}`, { revalidate: 300 });
   }
 
@@ -124,7 +124,7 @@ export async function getProduct(idOrSlug: number | string): Promise<ProductLike
   try {
     return await waGet<ProductLike>(`/product/${idOrSlug}`, { revalidate: 300 });
   } catch (e) {
-    // console.warn(`Direct fetch for slug "${idOrSlug}" failed, trying search...`);
+    console.warn(`[getProduct] Direct fetch failed for "${idOrSlug}". API might require ID. Trying search fallback...`);
     try {
       const targetSlug = String(idOrSlug);
 
@@ -133,9 +133,13 @@ export async function getProduct(idOrSlug: number | string): Promise<ProductLike
       const queryFull = targetSlug.replace(/[-_/]/g, " ").replace(".html", "");
       const resFull = await waGet<{ products: ProductLike[] }>(withQuery("/products/search", { query: queryFull, with: "images,skus,frontend_url" }), { revalidate: 60 });
       const productsFull = resFull.products || [];
+      console.log(`[getProduct] Strategy 1 (Full) for "${idOrSlug}" found ${productsFull.length} items.`);
 
       const match1 = findExact(productsFull, targetSlug);
-      if (match1) return match1;
+      if (match1) {
+        console.log(`[getProduct] Match found via Strategy 1: ${match1.id}`);
+        return match1;
+      }
 
       // Strategy 2: Search by last 2 parts (Model/SKU usually at end and preserved in Latin)
       // e.g. "elektricheskiy-kamin-electrolux-efpw-2000s" -> "efpw 2000s"
@@ -147,9 +151,13 @@ export async function getProduct(idOrSlug: number | string): Promise<ProductLike
         if (queryLast !== queryFull) {
           const resLast = await waGet<{ products: ProductLike[] }>(withQuery("/products/search", { query: queryLast, with: "images,skus,frontend_url" }), { revalidate: 60 });
           const productsLast = resLast.products || [];
+          console.log(`[getProduct] Strategy 2 (Last 2) queries "${queryLast}" found ${productsLast.length} items.`);
 
           const match2 = findExact(productsLast, targetSlug);
-          if (match2) return match2;
+          if (match2) {
+            console.log(`[getProduct] Match found via Strategy 2: ${match2.id}`);
+            return match2;
+          }
         }
       }
 
@@ -166,6 +174,7 @@ export async function getProduct(idOrSlug: number | string): Promise<ProductLike
       console.error("Search fallback failed", searchErr);
     }
 
-    throw e; // Re-throw original error if search fails
+    console.error(`[getProduct] All strategies failed for "${idOrSlug}".`);
+    throw new Error("Not Found");
   }
 }
