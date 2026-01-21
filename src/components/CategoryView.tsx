@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getCategoryProducts, getCategories } from "@/lib/wa";
+import { getCategoryProducts, getCategories, flattenCategories } from "@/lib/wa";
 import ProductCard from "@/components/ProductCard";
 import { ProductLike } from "@/types";
 import { ChevronRight } from "lucide-react";
@@ -23,7 +23,10 @@ export default async function CategoryView({
 
     // Fetch categories for breadcrumbs and subcategories
     // Fetch categories for breadcrumbs and subcategories
-    const allCats = await getCategories();
+    // Fetch categories for breadcrumbs and subcategories
+    const allCatsTree = await getCategories();
+    // Flatten so we can find subcategories by ID
+    const allCats = flattenCategories(allCatsTree);
 
     const currentCat = allCats.find((c) => c.id === Number(categoryId));
     const subCats = allCats.filter((c) => c.parent_id === Number(categoryId));

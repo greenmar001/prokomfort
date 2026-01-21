@@ -32,8 +32,11 @@ async function waGet<T>(endpoint: string, options: RequestInit & { revalidate?: 
     });
 
     if (!res.ok) {
-      if (res.status === 404) throw new Error("Not Found");
-      throw new Error(`API Error: ${res.status} ${res.statusText}`);
+      if (res.status === 404) {
+        console.error(`[waGet] 404 Not Found: ${url}`);
+        throw new Error("Not Found");
+      }
+      throw new Error(`API Error: ${res.status} ${res.statusText} for ${url}`);
     }
     return res.json();
   } catch (error) {
