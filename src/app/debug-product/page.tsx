@@ -1,8 +1,6 @@
 import Link from "next/link";
 import { getProduct } from "@/lib/wa";
 
-import Link from "next/link";
-import { getProduct } from "@/lib/wa";
 
 export default async function DebugProductPage({
     searchParams,
