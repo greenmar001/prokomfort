@@ -20,7 +20,7 @@ const headers = {
  */
 async function waGet<T>(endpoint: string, options: RequestInit & { revalidate?: number } = {}): Promise<T> {
   // Normalize base URL by removing trailing slash
-  const base = WA_BASE_URL.replace(/\/$/, "");
+  const base = WA_BASE_URL!.replace(/\/$/, "");
   // Normalize endpoint by ensuring leading slash
   const path = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
   const url = `${base}${path}`;
