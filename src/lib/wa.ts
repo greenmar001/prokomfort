@@ -62,6 +62,17 @@ export async function getCategories(): Promise<Category[]> {
   }
 }
 
+export function flattenCategories(categories: Category[]): Category[] {
+  let flat: Category[] = [];
+  for (const cat of categories) {
+    flat.push(cat);
+    if (cat.categories && cat.categories.length > 0) {
+      flat = flat.concat(flattenCategories(cat.categories));
+    }
+  }
+  return flat;
+}
+
 export async function getCategoryProducts(
   categoryId: number,
   params: { page?: number; limit?: number; sort?: string; order?: string;[key: string]: string | number | undefined } = {}
