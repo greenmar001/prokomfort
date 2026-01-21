@@ -38,4 +38,5 @@ export type Category = {
   full_url?: string;
   count?: number;
   parent_id?: number;
+  categories?: Category[];
 };

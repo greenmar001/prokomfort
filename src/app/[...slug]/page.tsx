@@ -1,4 +1,4 @@
-import { getCategories, getProduct } from "@/lib/wa";
+import { getCategories, getProduct, flattenCategories } from "@/lib/wa";
 import CategoryView from "@/components/CategoryView";
 import ProductView from "@/components/ProductView";
 import { notFound } from "next/navigation";
@@ -18,7 +18,9 @@ export default async function SlugPage({
     const slugPath = slug.join("/");
 
     // Fetch all categories
-    const allCats = await getCategories();
+    const rootCats = await getCategories();
+    // Flatten the tree to search all levels (subcategories too)
+    const allCats = flattenCategories(rootCats);
 
     // 1. Try to find a matching Category first
     const targetCat = allCats.find(c => c.full_url === slugPath);
