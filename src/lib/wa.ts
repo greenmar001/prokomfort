@@ -88,7 +88,6 @@ export async function getCategoryProducts(
   params: { page?: number; limit?: number; sort?: string; order?: string;[key: string]: string | number | undefined } = {}
 ) {
   const query = {
-    category_id: categoryId,
     limit: params.limit || 24,
     page: params.page || 1,
     sort: params.sort,
@@ -98,7 +97,7 @@ export async function getCategoryProducts(
     with: "images,skus,frontend_url"
   };
 
-  return waGet<{ products: ProductLike[]; count: number }>(withQuery("/products", query), { revalidate: 60 });
+  return waGet<{ products: ProductLike[]; count: number }>(withQuery(`/category/${categoryId}/products`, query), { revalidate: 60 });
 }
 
 // --- Product ---
