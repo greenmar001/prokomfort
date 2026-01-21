@@ -1,0 +1,19 @@
+version: '3.3'
+services:
+  manticore:
+    image: manticoresearch/manticore:latest
+    container_name: manticore
+    ports:
+      - "9308:9308"
+      - "9306:9306"
+    restart: always
+    volumes:
+      - manticore_data:/var/lib/manticore
+    ulimits:
+      nproc: 65535
+      nofile:
+        soft: 65535
+        hard: 65535
+
+volumes:
+  manticore_data:

@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "next lint",
+    "reindex": "ts-node scripts/reindex.ts"
   },
   "dependencies": {
     "next": "16.0.10",

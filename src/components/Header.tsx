@@ -135,16 +135,7 @@ export default async function Header() {
           <CatalogMenu categories={categories} />
 
           {/* Search Input */}
-          <div className="flex-1 relative w-full">
-            <input
-              type="text"
-              placeholder="Введите запрос..."
-              className="w-full border border-gray-200 bg-gray-50 rounded-lg pl-5 pr-24 py-3.5 outline-none focus:border-orange-500 focus:bg-white focus:ring-4 focus:ring-orange-500/10 transition text-sm font-medium"
-            />
-            <button className="absolute right-1.5 top-1.5 bottom-1.5 bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 rounded-md font-bold text-xs uppercase tracking-wide transition">
-              Найти
-            </button>
-          </div>
+          <SearchBox />
 
           {/* Right Buttons */}
           <div className="hidden lg:flex items-center gap-3 shrink-0">
