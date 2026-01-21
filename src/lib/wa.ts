@@ -62,12 +62,19 @@ export async function getCategories(): Promise<Category[]> {
   }
 }
 
-export function flattenCategories(categories: Category[]): Category[] {
+export function flattenCategories(categories: Category[], parentPath: string = ""): Category[] {
   let flat: Category[] = [];
   for (const cat of categories) {
+    // Construct full_url from hierarchy to ensure it matches the routing structure
+    const slugSegment = cat.url || String(cat.id);
+    const currentPath = parentPath ? `${parentPath}/${slugSegment}` : slugSegment;
+
+    // Override/Set full_url to be consistent with our recursive path
+    cat.full_url = currentPath;
+
     flat.push(cat);
     if (cat.categories && cat.categories.length > 0) {
-      flat = flat.concat(flattenCategories(cat.categories));
+      flat = flat.concat(flattenCategories(cat.categories, currentPath));
     }
   }
   return flat;

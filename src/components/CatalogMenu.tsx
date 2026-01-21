@@ -10,10 +10,6 @@ interface CatalogMenuProps {
 }
 
 export default function CatalogMenu({ categories }: CatalogMenuProps) {
-    if (categories && categories.length > 0) {
-        console.log("CatalogMenu Debug: First category:", categories[0]);
-    }
-
     const [isOpen, setIsOpen] = useState(false);
     const [activeCategoryId, setActiveCategoryId] = useState<number | null>(null);
 
