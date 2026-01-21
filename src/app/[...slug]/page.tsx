@@ -33,7 +33,9 @@ export default async function SlugPage({
         return <CategoryView categoryId={targetCat.id} searchParams={sp} baseUrl={`/${slugPath}`} />;
     }
 
-    // 2. If no category found, try finding a Product by the last segment
+
+    // 2. If no category found, try finding a Product by the full path
+    // We pass the full path so getProduct can match against frontend_url which includes categories
     const lastPart = slug[slug.length - 1];
 
     // Safety check for files
@@ -43,7 +45,8 @@ export default async function SlugPage({
 
     let product: ProductLike | null = null;
     try {
-        product = await getProduct(lastPart);
+        // Pass the FULL path (e.g. "category/product") to allow exact frontend_url matching
+        product = await getProduct(slugPath);
     } catch (e) {
         // Product not found or error
         console.error(`Failed to find category or product for path: ${slugPath}`, e);
