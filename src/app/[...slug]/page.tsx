@@ -18,13 +18,7 @@ export default async function SlugPage({
     const slugPath = slug.join("/");
 
     // Fetch all categories
-    const catsData = await getCategories();
-    let allCats: Category[] = [];
-    if (Array.isArray(catsData)) {
-        allCats = catsData;
-    } else if (catsData && "categories" in catsData) {
-        allCats = catsData.categories;
-    }
+    const allCats = await getCategories();
 
     // 1. Try to find a matching Category first
     const targetCat = allCats.find(c => c.full_url === slugPath);
