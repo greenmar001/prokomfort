@@ -46,14 +46,14 @@ export async function getCategories(): Promise<Category[]> {
   try {
     const data = await waGet<{ categories: Category[] }>("/categories?tree=1", { revalidate: 300 });
     return data.categories || [];
-  } catch (e) {
+  } catch {
     return [];
   }
 }
 
 export async function getCategoryProducts(
   categoryId: number,
-  params: { page?: number; limit?: number; sort?: string; order?: string;[key: string]: any } = {}
+  params: { page?: number; limit?: number; sort?: string; order?: string;[key: string]: string | number | undefined } = {}
 ) {
   const query = {
     category_id: categoryId,

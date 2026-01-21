@@ -83,9 +83,11 @@ export default async function Header() {
         <div className="container flex flex-col xl:flex-row items-center justify-between gap-6">
           {/* Logo area */}
           <Link href="/" className="flex items-center gap-3 group shrink-0">
-            <img
+            <Image
               src="https://pro-komfort.com/wa-data/public/site/img/logo-ng.svg"
               alt="PRO Komfort"
+              width={180}
+              height={48}
               className="h-12 w-auto object-contain"
             />
           </Link>
