@@ -71,8 +71,8 @@ export default function CatalogMenu({ categories }: CatalogMenuProps) {
                                     key={cat.id}
                                     onMouseEnter={() => setActiveCategoryId(cat.id)}
                                     className={`flex items-center justify-between px-6 py-3 cursor-pointer transition-colors ${activeCategory?.id === cat.id
-                                            ? "bg-gray-50 text-orange-500 font-bold"
-                                            : "text-gray-700 hover:text-orange-500 hover:bg-gray-50"
+                                        ? "bg-gray-50 text-orange-500 font-bold"
+                                        : "text-gray-700 hover:text-orange-500 hover:bg-gray-50"
                                         }`}
                                 >
                                     <div className="flex items-center gap-3">
@@ -93,7 +93,7 @@ export default function CatalogMenu({ categories }: CatalogMenuProps) {
                                 <div>
                                     <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
                                         {activeCategory.name}
-                                        <Link href={`/category/${activeCategory.id}`} className="text-sm font-medium text-gray-400 hover:text-orange-500 transition" onClick={() => setIsOpen(false)}>
+                                        <Link href={`/${activeCategory.full_url || activeCategory.url}`} className="text-sm font-medium text-gray-400 hover:text-orange-500 transition" onClick={() => setIsOpen(false)}>
                                             Смотреть все
                                         </Link>
                                     </h2>
@@ -102,7 +102,7 @@ export default function CatalogMenu({ categories }: CatalogMenuProps) {
                                         <div className="grid grid-cols-3 gap-y-6 gap-x-8">
                                             {subcategories.map((sub) => (
                                                 <div key={sub.id} className="group">
-                                                    <Link href={`/category/${sub.id}`} className="font-bold text-[15px] hover:text-orange-500 transition block mb-2" onClick={() => setIsOpen(false)}>
+                                                    <Link href={`/${sub.full_url || sub.url}`} className="font-bold text-[15px] hover:text-orange-500 transition block mb-2" onClick={() => setIsOpen(false)}>
                                                         {sub.name}
                                                     </Link>
 
@@ -111,7 +111,7 @@ export default function CatalogMenu({ categories }: CatalogMenuProps) {
                                                         <ul className="space-y-1.5">
                                                             {childrenMap[sub.id].slice(0, 5).map(lvl3 => (
                                                                 <li key={lvl3.id}>
-                                                                    <Link href={`/category/${lvl3.id}`} className="text-[13px] text-gray-500 hover:text-orange-500 transition" onClick={() => setIsOpen(false)}>
+                                                                    <Link href={`/${lvl3.full_url || lvl3.url}`} className="text-[13px] text-gray-500 hover:text-orange-500 transition" onClick={() => setIsOpen(false)}>
                                                                         {lvl3.name}
                                                                     </Link>
                                                                 </li>
