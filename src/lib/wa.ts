@@ -183,3 +183,37 @@ export async function getProduct(idOrSlug: number | string): Promise<ProductLike
     throw new Error("Not Found");
   }
 }
+
+export async function resolveSlug(slugPath: string): Promise<
+  | { type: "category"; data: Category }
+  | { type: "product"; data: ProductLike }
+  | null
+> {
+  // 1. Try to find a matching Category first
+  const rootCats = await getCategories();
+  const allCats = flattenCategories(rootCats);
+  const targetCat = allCats.find((c) => c.full_url === slugPath);
+
+  if (targetCat) {
+    return { type: "category", data: targetCat };
+  }
+
+  // 2. Try to find Product
+  const lastPart = slugPath.split("/").pop() || "";
+  // Safety check for file extensions that are NOT .html
+  if (lastPart.includes(".") && !lastPart.endsWith(".html")) {
+    return null;
+  }
+
+  try {
+    const product = await getProduct(slugPath);
+    if (product) {
+      return { type: "product", data: product };
+    }
+  } catch (e) {
+    // Ignore 404 from getProduct
+  }
+
+  return null;
+}
+

@@ -70,6 +70,48 @@ export default function ProductView({ product: p, categories: allCats }: Product
                 <span className="text-gray-400 truncate">{p.name || `Товар`}</span>
             </div>
 
+            {/* Structured Data (JSON-LD) */}
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{
+                    __html: JSON.stringify([
+                        {
+                            "@context": "https://schema.org",
+                            "@type": "BreadcrumbList",
+                            "itemListElement": crumbs.map((c, i) => ({
+                                "@type": "ListItem",
+                                "position": i + 1,
+                                "name": c.title,
+                                "item": `https://pro-komfort.com${c.href === '/' ? '' : c.href}`
+                            })).concat({
+                                "@type": "ListItem",
+                                "position": crumbs.length + 1,
+                                "name": p.name,
+                                "item": `https://pro-komfort.com/${p.url}` // Current page
+                            })
+                        },
+                        {
+                            "@context": "https://schema.org",
+                            "@type": "Product",
+                            "name": p.name,
+                            "image": p.image_id ? [
+                                `https://pro-komfort.com/wa-data/public/shop/products/${Math.floor(p.id / 1000)}/${p.id}/images/${p.image_id}/${p.image_id}.970.jpg`
+                            ] : [],
+                            "description": (p.summary || "").replace(/<[^>]*>?/gm, "").slice(0, 160),
+                            "sku": sku?.sku || String(p.id),
+                            "offers": {
+                                "@type": "Offer",
+                                "url": `https://pro-komfort.com/${p.url}`,
+                                "priceCurrency": "RUB",
+                                "price": priceVal,
+                                "availability": (sku?.count === 0 && !sku.available) ? "https://schema.org/OutOfStock" : "https://schema.org/InStock"
+                            }
+                        }
+                    ])
+                }}
+            />
+
+
             {/* Header Section */}
             <h1 className="text-[28px] md:text-[32px] font-bold mb-4 leading-tight">
                 {p.name ?? `Товар`}

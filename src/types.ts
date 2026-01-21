@@ -5,10 +5,15 @@ export type Image = {
 };
 
 export type Sku = {
+  id?: number | string;
+  sku?: string;
+  price?: number;
   price_str?: string;
   available?: number | boolean;
+  count?: number; // Stock quantity
   compare_price?: number;
 };
+
 
 export type FeatureValue = string | number | { value: string | number; unit?: string };
 

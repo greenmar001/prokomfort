@@ -114,6 +114,24 @@ export default async function CategoryView({
                 ))}
             </div>
 
+            {/* Structured Data */}
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{
+                    __html: JSON.stringify({
+                        "@context": "https://schema.org",
+                        "@type": "BreadcrumbList",
+                        "itemListElement": crumbs.map((c, i) => ({
+                            "@type": "ListItem",
+                            "position": i + 1,
+                            "name": c.title,
+                            "item": `https://pro-komfort.com${c.href === '/' ? '' : c.href}`
+                        }))
+                    })
+                }}
+            />
+
+
             {/* Header with Title and Sort */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                 <h1 className="text-3xl md:text-4xl font-bold text-gray-900 leading-tight">
