@@ -1,7 +1,8 @@
-import { getCategories } from "@/lib/wa";
+import { getCategories, getProduct } from "@/lib/wa";
 import CategoryView from "@/components/CategoryView";
+import ProductView from "@/components/ProductView";
 import { notFound } from "next/navigation";
-import { Category } from "@/types";
+import { Category, ProductLike } from "@/types";
 
 export const revalidate = 60;
 
@@ -16,7 +17,7 @@ export default async function SlugPage({
     const sp = await searchParams;
     const slugPath = slug.join("/");
 
-    // Fetch all categories to find the ID
+    // Fetch all categories to find the ID (and for product breadcrumbs)
     const catsData = await getCategories();
     let allCats: Category[] = [];
     if (Array.isArray(catsData)) {
@@ -25,37 +26,43 @@ export default async function SlugPage({
         allCats = catsData.categories;
     }
 
-    // Find category by full_url or url
+    // 1. Try to find a matching Category first
     // Strategy: Try to match full_url (e.g. "catalog/air-conditioners") first
-    // Note: API might return full_url without leading slash?
-    // Let's assume full_url matches the path exactly.
-    // Also check "url" property for simple slugs if structure is flat.
-
     let targetCat = allCats.find(c => c.full_url === slugPath);
 
     if (!targetCat) {
-        // Fallback: Check if it's a single level slug match?
-        // Some APIs might return just "air-conditioners" in url field.
-        // But full_url is safer for nested.
-        // If user navigated to /part1/part2, slugPath is "part1/part2".
-
-        // Try finding by url === last segment? (Risk of collision)
         const lastSegment = slug[slug.length - 1];
-        targetCat = allCats.find(c => c.url === lastSegment && !c.full_url); // Only if full_url not present? 
-
-        // Better to stick to full_url if available. Use strict matching first.
+        // Weak fallback: try finding by exact url match of last segment if full_url check failed
+        // But be careful of collisions. Prefer strict full_url.
+        // targetCat = allCats.find(c => c.url === lastSegment);
     }
 
-    if (!targetCat) {
-        // If not a category, it might be a product page?
-        // Or 404.
-        // Since we want to support /product/[slug], we handled that in separate route.
-        // But wait. If user wants `pro-komfort.com/product-slug`, then `[...slug]` will catch it.
-        // If user accepts `pro-komfort.com/product/[slug]`, then that route handles it.
-        // For now, let's assume it's just Categories or Static Pages here.
-        // If not found, return 404.
-        return notFound();
+    if (targetCat) {
+        return <CategoryView categoryId={targetCat.id} searchParams={sp} baseUrl={`/${slugPath}`} />;
     }
 
-    return <CategoryView categoryId={targetCat.id} searchParams={sp} baseUrl={`/${slugPath}`} />;
+    // 2. If no category found, try finding a Product by the last segment
+    // This supports URLs like /category/subcategory/product-name OR just /product-name
+    // The previous update to `getProduct` allows searching by the last slug part if direct fetch fails.
+    const lastPart = slug[slug.length - 1];
+
+    // Safety check: if it looks like a system route or resource, ignore
+    if (lastPart.includes(".")) {
+        // likely a file like robots.txt or sitemap.xml if it got here, though next.js usually handles those.
+        // ignore .html suffix if present
+        if (!lastPart.endsWith(".html")) return notFound();
+    }
+
+    try {
+        const product = await getProduct(lastPart);
+        if (product) {
+            return <ProductView product={product} categories={allCats} />;
+        }
+    } catch (e) {
+        // Product not found
+        console.error(`Failed to find category or product for path: ${slugPath}`, e);
+    }
+
+    // 3. Not found
+    return notFound();
 }
