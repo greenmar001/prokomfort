@@ -14,12 +14,15 @@ import {
   MessageCircle,
   Send
 } from "lucide-react";
-import { getCategories } from "@/lib/wa";
+import { getCategories, flattenCategories } from "@/lib/wa";
 import { Category } from "@/types";
 import CatalogMenu from "./CatalogMenu";
 
 export default async function Header() {
-  const categories = await getCategories();
+  const categoriesTree = await getCategories();
+  // Flatten tree so CatalogMenu receives a flat list (required for its grouping logic)
+  // This also ensures full_url is correctly generated for all subcategories
+  const categories = flattenCategories(categoriesTree);
 
   return (
     <header className="flex flex-col w-full font-sans relative z-30">
