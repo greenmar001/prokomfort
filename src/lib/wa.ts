@@ -142,15 +142,14 @@ export async function getProduct(idOrSlug: number | string): Promise<ProductLike
       }
 
       // Strategy 2: Search by last 2 parts (Model/SKU usually at end and preserved in Latin)
-      // e.g. "elektricheskiy-kamin-electrolux-efpw-2000s" -> "efpw 2000s"
-      // Also handle paths: "cat/sub/prod" -> "sub prod"
+      let productsLast: ProductLike[] = [];
       const parts = targetSlug.split(/[-/]/).filter(p => p.length > 0 && p !== "html");
       if (parts.length >= 2) {
         const queryLast = parts.slice(-2).join(" ");
         // Avoid repeating query if same
         if (queryLast !== queryFull) {
           const resLast = await waGet<{ products: ProductLike[] }>(withQuery("/products/search", { query: queryLast, with: "images,skus,frontend_url" }), { revalidate: 60 });
-          const productsLast = resLast.products || [];
+          productsLast = resLast.products || [];
           console.log(`[getProduct] Strategy 2 (Last 2) queries "${queryLast}" found ${productsLast.length} items.`);
 
           const match2 = findExact(productsLast, targetSlug);
@@ -161,14 +160,40 @@ export async function getProduct(idOrSlug: number | string): Promise<ProductLike
         }
       }
 
+      // Strategy 3: Search by "Model Code" (any part containing digits)
+      const modelParts = parts.filter(p => /\d/.test(p));
+      if (modelParts.length > 0) {
+        const queryModel = modelParts.join(" ");
+        // Ensure we don't repeat queries
+        if (queryModel !== queryFull && queryModel !== parts.slice(-2).join(" ")) {
+          const resModel = await waGet<{ products: ProductLike[] }>(withQuery("/products/search", { query: queryModel, with: "images,skus,frontend_url" }), { revalidate: 60 });
+          const productsModel = resModel.products || [];
+          console.log(`[getProduct] Strategy 3 (Model) queries "${queryModel}" found ${productsModel.length} items.`);
+
+          const match3 = findExact(productsModel, targetSlug);
+          if (match3) {
+            console.log(`[getProduct] Match found via Strategy 3: ${match3.id}`);
+            return match3;
+          }
+
+          // If we have model results, they are usually high quality matches
+          if (productsModel.length > 0) {
+            console.warn(`[getProduct] Using first Model match for "${idOrSlug}" -> ${productsModel[0].name}`);
+            return productsModel[0];
+          }
+        }
+      }
+
       // Fallback: If we found SOMETHING in full search, return it? 
-      // User reported 404, but if we trust detailed search query, first result often correct.
       if (productsFull.length > 0) {
-        // Only fallback if we have at least a partial containment?
-        // Actually, if findExact failed, maybe the URL is totally different.
-        // But for safe fallback, let's return the first one logged as warning.
-        console.warn(`[getProduct] Fuzzy match used for "${idOrSlug}" -> ${productsFull[0].name} (${productsFull[0].frontend_url})`);
+        console.warn(`[getProduct] Fuzzy match used (Full) for "${idOrSlug}" -> ${productsFull[0].name} (${productsFull[0].frontend_url})`);
         return productsFull[0];
+      }
+
+      // Fallback: If we found SOMETHING in Last 2 search, return it?
+      if (productsLast.length > 0) {
+        console.warn(`[getProduct] Fuzzy match used (Last 2) for "${idOrSlug}" -> ${productsLast[0].name}`);
+        return productsLast[0];
       }
     } catch (searchErr) {
       console.error("Search fallback failed", searchErr);
