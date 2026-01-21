@@ -4,10 +4,7 @@ import { Category, ProductLike } from "@/types";
 const WA_BASE_URL = process.env.WA_HEADLESS_BASE_URL;
 
 if (!WA_BASE_URL) {
-  console.error("WA_HEADLESS_BASE_URL is not set");
-  // Allow build to proceed to avoid breaking CI if secrets are missing, 
-  // but this will fail at runtime. Use backup for safety? 
-  // User said "Generally path wasn't there", implying STRICT dependency on Env.
+  throw new Error("WA_HEADLESS_BASE_URL is not set");
 }
 
 const headers = {
