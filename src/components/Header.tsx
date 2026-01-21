@@ -15,7 +15,6 @@ import {
   Send
 } from "lucide-react";
 import { getCategories, flattenCategories } from "@/lib/wa";
-import { Category } from "@/types";
 import CatalogMenu from "./CatalogMenu";
 
 export default async function Header() {
