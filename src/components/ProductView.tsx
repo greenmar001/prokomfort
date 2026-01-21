@@ -86,7 +86,7 @@ export default function ProductView({ product: p, categories: allCats }: Product
                             })).concat({
                                 "@type": "ListItem",
                                 "position": crumbs.length + 1,
-                                "name": p.name,
+                                "name": p.name || "Товар",
                                 "item": `https://pro-komfort.com/${p.url}` // Current page
                             })
                         },
